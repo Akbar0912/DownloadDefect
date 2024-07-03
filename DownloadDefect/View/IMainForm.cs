@@ -8,12 +8,6 @@ namespace DownloadDefect.View
 {
     public interface IMainForm
     {
-        public string Search {  get; set; }
-        DateTime SelectedDate { get; }
-
-        event EventHandler SearchFilter;
-        event EventHandler<object> ExportDataGridView;
-        void SetDefectListBindingSource(BindingSource defectList);
         void Show();
     }
 }
