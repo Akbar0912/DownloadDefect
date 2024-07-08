@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Dyorcx250WErfyZtdh0ZExPHbwvfMBpZn8lkkYaMqoQiPrjngUTVULPumUZARYD8mz0mogzYwGPjwJySk1DoZA==",
+  "dgSpecHash": "GwFK4XLoSL8XibsCySlmG+yBOxqfhp6reh0rdEzXGPKeb2kjdO8wVmCckR/tOwE4hUxZncCaCtF4P5YnQibrSw==",
   "success": true,
-  "projectFilePath": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadDefect.csproj",
+  "projectFilePath": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadData.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\hp090\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\hp090\\.nuget\\packages\\azure.identity\\1.11.3\\azure.identity.1.11.3.nupkg.sha512",

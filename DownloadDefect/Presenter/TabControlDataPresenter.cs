@@ -1,25 +1,29 @@
-﻿using DownloadDefect._Repositories;
-using DownloadDefect.Model;
-using DownloadDefect.View;
+﻿using DownloadData.Model;
+using DownloadData.View;
+using DownloadData._Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DownloadDefect.Presenter
+namespace DownloadData.Presenter
 {
     public class TabControlDataPresenter
     {
         public ITabControlView View { get; set; }
         public IDefectRepository _defectRepository { get; set; }
-        public DefectModel _defectModel { get; }
+        public IWarrantyRepository _warrantyRepository { get; set; }
+        public IPackingRepository _packingRepository { get; set; }
+        //public DefectModel _defectModel { get; }
 
-        public TabControlDataPresenter()
+        public TabControlDataPresenter(ITabControlView view, IDefectRepository defectRepository, IWarrantyRepository warrantyRepository, IPackingRepository packingRepository)
         {
-            View = new TabControlView();
-            _defectRepository = new DefectRepository();
-            _defectModel = new DefectModel();
+            View = view;
+            _defectRepository = defectRepository;
+            _warrantyRepository = warrantyRepository;
+            _packingRepository = packingRepository;
+            //_defectModel = model;
         }
     }
 }

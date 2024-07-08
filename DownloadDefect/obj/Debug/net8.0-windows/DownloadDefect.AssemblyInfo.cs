@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DownloadDefect")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+32fcb9100a3476860efc0809fdf86c8b16b188a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6b869898ab9045baba5bfde0041f526dda63a329")]
 [assembly: System.Reflection.AssemblyProductAttribute("DownloadDefect")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DownloadDefect")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

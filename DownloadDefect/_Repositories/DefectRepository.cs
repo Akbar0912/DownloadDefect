@@ -1,4 +1,4 @@
-﻿using DownloadDefect.Model;
+﻿using DownloadData.Model;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,7 +7,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 
-namespace DownloadDefect._Repositories
+namespace DownloadData._Repositories
 {
     public class DefectRepository : IDefectRepository
     {

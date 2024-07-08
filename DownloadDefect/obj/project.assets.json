@@ -2269,9 +2269,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadDefect.csproj",
-      "projectName": "DownloadDefect",
-      "projectPath": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadDefect.csproj",
+      "projectUniqueName": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadData.csproj",
+      "projectName": "DownloadData",
+      "projectPath": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\DownloadData.csproj",
       "packagesPath": "C:\\Users\\hp090\\.nuget\\packages\\",
       "outputPath": "D:\\Perkuliahan\\Semester6\\Panasonic\\DownloadDefect\\DownloadDefect\\DownloadDefect\\obj\\",
       "projectStyle": "PackageReference",

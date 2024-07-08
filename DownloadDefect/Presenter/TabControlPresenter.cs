@@ -1,6 +1,4 @@
-﻿using DownloadDefect.Model;
-using DownloadDefect.View;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,30 +7,97 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using DownloadData.Model;
+using DownloadData.View;
 
-namespace DownloadDefect.Presenter
+namespace DownloadData.Presenter
 {
     public class TabControlPresenter
     {
         private ITabControlView _tabControl;
         private IDefectRepository _defectRepository;
+        private IWarrantyRepository _warrantyRepository;
+        private IPackingRepository _packingRepository;
         private IEnumerable<DefectModel> defectList;
+        private IEnumerable<WarrantyModel> warrantyList;
+        private IEnumerable<PackingModel> packingList;
         private BindingSource defectsBindingSource;
+        private BindingSource warrantyBindingSource;
+        private BindingSource packingBindingSource;
 
         public TabControlPresenter(TabControlDataPresenter data)
         {
             _tabControl = data.View;
             _defectRepository = data._defectRepository;
+            _warrantyRepository = data._warrantyRepository;
+            _packingRepository = data._packingRepository;
 
             defectsBindingSource = new BindingSource();
+            warrantyBindingSource = new BindingSource();
+            packingBindingSource = new BindingSource();
 
-            _tabControl.SetDefectListBindingSource(defectsBindingSource);
+            _tabControl.SetDefectListBindingSource1(defectsBindingSource);
+            _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
+            _tabControl.SetDefectListBindingSource3(packingBindingSource);
+
             LoadAllResultDefect();
+            LoadAllResultWarranty();
+            LoadAllResultPacking();
 
             _tabControl.SearchFilter += SearchFilter;
+            _tabControl.SearchFilter2 += SearchFilter2;
+            _tabControl.SearchFilter3 += SearchFilter3;
+
             _tabControl.ExportDataGridView += ExportDataGridView;
+            _tabControl.ExportDataGridView2 += ExportDataGridView2;
+            _tabControl.ExportDataGridView3 += ExportDataGridView3;
 
             _tabControl.Show();
+        }
+
+
+        private void ExportDataGridView3(object? sender, object e)
+        {
+            var dataGridView = _tabControl.GetDataGridView3();
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                string day = DateTime.Now.Day.ToString();
+                string month = DateTime.Now.Month.ToString();
+                string year = DateTime.Now.Year.ToString();
+
+                string hour = DateTime.Now.Hour.ToString();
+                string minute = DateTime.Now.Minute.ToString();
+                string second = DateTime.Now.Second.ToString();
+
+                sfd.Filter = "Excel files (*.xlsx)|*.xlsx";
+                sfd.FileName = "Data Packing " + day + "-" + month + "-" + year + "_at_" + hour + "." + minute + "." + second;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    ExportDataGridViewToExcel(dataGridView, sfd.FileName);
+                }
+            }
+        }
+
+        private void ExportDataGridView2(object? sender, object e)
+        {
+            var dataGridView = _tabControl.GetDataGridView2();
+            using (SaveFileDialog sfd = new SaveFileDialog())
+            {
+                string day = DateTime.Now.Day.ToString();
+                string month = DateTime.Now.Month.ToString();
+                string year = DateTime.Now.Year.ToString();
+
+                string hour = DateTime.Now.Hour.ToString();
+                string minute = DateTime.Now.Minute.ToString();
+                string second = DateTime.Now.Second.ToString();
+
+                sfd.Filter = "Excel files (*.xlsx)|*.xlsx";
+                sfd.FileName = "Data Warranty Card " + day + "-" + month + "-" + year + "_at_" + hour + "." + minute + "." + second;
+                if (sfd.ShowDialog() == DialogResult.OK)
+                {
+                    ExportDataGridViewToExcel(dataGridView, sfd.FileName);
+                }
+            }
         }
 
         private void ExportDataGridView(object? sender, object e)
@@ -124,18 +189,44 @@ namespace DownloadDefect.Presenter
             }
         }
 
+
         private void SearchFilter(object? sender, EventArgs e)
         {
             defectList = _defectRepository.GetFilter(_tabControl.Search, _tabControl.SelectedDate);
             defectsBindingSource.DataSource = defectList;
-            _tabControl.SetDefectListBindingSource(defectsBindingSource);
+            _tabControl.SetDefectListBindingSource1(defectsBindingSource);
+        }
+        private void SearchFilter2(object? sender, EventArgs e)
+        {
+            warrantyList = _warrantyRepository.GetFilter(_tabControl.SearchWarranty, _tabControl.SelectedDate2);
+            warrantyBindingSource.DataSource = warrantyList;
+            _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
+        }
+        private void SearchFilter3(object? sender, EventArgs e)
+        {
+            packingList = _packingRepository.GetFilter(_tabControl.SelectedDate3);
+            packingBindingSource.DataSource = packingList;
+            _tabControl.SetDefectListBindingSource3(packingBindingSource);
         }
 
+        private void LoadAllResultPacking()
+        {
+            packingList = _packingRepository.GetAll();
+            packingBindingSource.DataSource = packingList;
+            _tabControl.SetDefectListBindingSource3(packingBindingSource);
+        }
+
+        private void LoadAllResultWarranty()
+        {
+            warrantyList = _warrantyRepository.GetAll();
+            warrantyBindingSource.DataSource = warrantyList;
+            _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
+        }
         private void LoadAllResultDefect()
         {
             defectList = _defectRepository.GetAllResult();
             defectsBindingSource.DataSource = defectList;
-            _tabControl.SetDefectListBindingSource(defectsBindingSource);
+            _tabControl.SetDefectListBindingSource1(defectsBindingSource);
         }
 
         public void ChangeTabPage(int index)

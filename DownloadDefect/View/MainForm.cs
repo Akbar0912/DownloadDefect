@@ -1,5 +1,7 @@
-using DownloadDefect.Model;
-using DownloadDefect.Presenter;
+using DownloadData.Model;
+using DownloadData.Presenter;
+using DownloadData.View;
+using DownloadData._Repositories;
 using DownloadDefect.View;
 
 namespace DownloadDefect
@@ -19,7 +21,7 @@ namespace DownloadDefect
         private void InitializeTabControl()
         {
             _tabControlView = new TabControlView();
-            TabControlDataPresenter presenterData = new TabControlDataPresenter();
+            TabControlDataPresenter presenterData = new TabControlDataPresenter(_tabControlView, new DefectRepository(), new WarrantyRepository(), new PackingRespository());
             tabControlPresenter = new TabControlPresenter(presenterData);
             splitContainer1.Panel2.Controls.Add(_tabControlView);
             _tabControlView.Dock = DockStyle.Fill;
@@ -32,8 +34,8 @@ namespace DownloadDefect
                 int selectedTabPageIndex = 0;
                 tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
                 btnDefect.BackColor = Color.FromArgb(0, 133, 181);
-                btnWarranty.BackColor = Color.FromArgb(0, 35, 105);
-                btnPacking.BackColor = Color.FromArgb(0, 35, 105);
+                btnWarranty.BackColor = Color.Teal;
+                btnPacking.BackColor = Color.Teal;
             };
 
             btnWarranty.Click += delegate
@@ -41,8 +43,8 @@ namespace DownloadDefect
                 int selectedTabPageIndex = 1;
                 tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
                 btnWarranty.BackColor = Color.FromArgb(0, 133, 181);
-                btnDefect.BackColor = Color.FromArgb(0, 35, 105);
-                btnPacking.BackColor = Color.FromArgb(0, 35, 105);
+                btnDefect.BackColor = Color.Teal;
+                btnPacking.BackColor = Color.Teal;
             };
 
             btnPacking.Click += delegate
@@ -50,8 +52,8 @@ namespace DownloadDefect
                 int selectedTabPageIndex = 2;
                 tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
                 btnPacking.BackColor = Color.FromArgb(0, 133, 181);
-                btnWarranty.BackColor = Color.FromArgb(0, 35, 105);
-                btnDefect.BackColor = Color.FromArgb(0, 35, 105);
+                btnWarranty.BackColor = Color.Teal;
+                btnDefect.BackColor = Color.Teal;
             };
         }
 

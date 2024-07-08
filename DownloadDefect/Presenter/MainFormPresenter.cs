@@ -1,6 +1,4 @@
-﻿using DownloadDefect._Repositories;
-using DownloadDefect.Model;
-using DownloadDefect.View;
+﻿using DownloadData._Repositories;
 using Microsoft.Office.Interop.Excel;
 using System;
 using System.Collections.Generic;
@@ -11,8 +9,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Runtime.InteropServices;
+using DownloadData.Model;
+using DownloadData.View;
 
-namespace DownloadDefect.Presenter
+namespace DownloadData.Presenter
 {
     public class MainFormPresenter
     {

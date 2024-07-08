@@ -1,9 +1,10 @@
-using DownloadDefect._Repositories;
-using DownloadDefect.Model;
-using DownloadDefect.Presenter;
-using DownloadDefect.View;
+using DownloadData.Model;
+using DownloadData.View;
+using DownloadDefect;
+using DownloadData._Repositories;
+using DownloadData.Presenter;
 
-namespace DownloadDefect
+namespace DownloadData
 {
     internal static class Program
     {
