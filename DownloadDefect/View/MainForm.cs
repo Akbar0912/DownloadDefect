@@ -21,7 +21,7 @@ namespace DownloadDefect
         private void InitializeTabControl()
         {
             _tabControlView = new TabControlView();
-            TabControlDataPresenter presenterData = new TabControlDataPresenter(_tabControlView, new DefectRepository(), new WarrantyRepository(), new PackingRespository());
+            TabControlDataPresenter presenterData = new TabControlDataPresenter(_tabControlView, new DefectRepository(), new WarrantyRepository());
             tabControlPresenter = new TabControlPresenter(presenterData);
             splitContainer1.Panel2.Controls.Add(_tabControlView);
             _tabControlView.Dock = DockStyle.Fill;
@@ -35,7 +35,6 @@ namespace DownloadDefect
                 tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
                 btnDefect.BackColor = Color.FromArgb(0, 133, 181);
                 btnWarranty.BackColor = Color.Teal;
-                btnPacking.BackColor = Color.Teal;
             };
 
             btnWarranty.Click += delegate
@@ -43,16 +42,6 @@ namespace DownloadDefect
                 int selectedTabPageIndex = 1;
                 tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
                 btnWarranty.BackColor = Color.FromArgb(0, 133, 181);
-                btnDefect.BackColor = Color.Teal;
-                btnPacking.BackColor = Color.Teal;
-            };
-
-            btnPacking.Click += delegate
-            {
-                int selectedTabPageIndex = 2;
-                tabControlPresenter.ChangeTabPage(selectedTabPageIndex);
-                btnPacking.BackColor = Color.FromArgb(0, 133, 181);
-                btnWarranty.BackColor = Color.Teal;
                 btnDefect.BackColor = Color.Teal;
             };
         }

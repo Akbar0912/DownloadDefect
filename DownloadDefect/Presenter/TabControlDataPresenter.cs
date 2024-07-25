@@ -14,16 +14,12 @@ namespace DownloadData.Presenter
         public ITabControlView View { get; set; }
         public IDefectRepository _defectRepository { get; set; }
         public IWarrantyRepository _warrantyRepository { get; set; }
-        public IPackingRepository _packingRepository { get; set; }
-        //public DefectModel _defectModel { get; }
 
-        public TabControlDataPresenter(ITabControlView view, IDefectRepository defectRepository, IWarrantyRepository warrantyRepository, IPackingRepository packingRepository)
+        public TabControlDataPresenter(ITabControlView view, IDefectRepository defectRepository, IWarrantyRepository warrantyRepository)
         {
             View = view;
             _defectRepository = defectRepository;
             _warrantyRepository = warrantyRepository;
-            _packingRepository = packingRepository;
-            //_defectModel = model;
         }
     }
 }

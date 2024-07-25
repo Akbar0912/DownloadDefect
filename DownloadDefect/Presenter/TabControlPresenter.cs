@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Excel = Microsoft.Office.Interop.Excel;
-using System.Runtime.InteropServices;
 using DownloadData.Model;
 using DownloadData.View;
+using Microsoft.Office.Interop.Excel;
 
 namespace DownloadData.Presenter
 {
@@ -17,104 +16,55 @@ namespace DownloadData.Presenter
         private ITabControlView _tabControl;
         private IDefectRepository _defectRepository;
         private IWarrantyRepository _warrantyRepository;
-        private IPackingRepository _packingRepository;
-        private IEnumerable<DefectModel> defectList;
-        private IEnumerable<WarrantyModel> warrantyList;
-        private IEnumerable<PackingModel> packingList;
         private BindingSource defectsBindingSource;
         private BindingSource warrantyBindingSource;
-        private BindingSource packingBindingSource;
 
         public TabControlPresenter(TabControlDataPresenter data)
         {
             _tabControl = data.View;
             _defectRepository = data._defectRepository;
             _warrantyRepository = data._warrantyRepository;
-            _packingRepository = data._packingRepository;
 
             defectsBindingSource = new BindingSource();
             warrantyBindingSource = new BindingSource();
-            packingBindingSource = new BindingSource();
 
             _tabControl.SetDefectListBindingSource1(defectsBindingSource);
             _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
-            _tabControl.SetDefectListBindingSource3(packingBindingSource);
 
-            LoadAllResultDefect();
-            LoadAllResultWarranty();
-            LoadAllResultPacking();
-
-            _tabControl.SearchFilter += SearchFilter;
-            _tabControl.SearchFilter2 += SearchFilter2;
-            _tabControl.SearchFilter3 += SearchFilter3;
-
-            _tabControl.ExportDataGridView += ExportDataGridView;
-            _tabControl.ExportDataGridView2 += ExportDataGridView2;
-            _tabControl.ExportDataGridView3 += ExportDataGridView3;
+            LoadAllResults();
+            SubscribeToEvents();
 
             _tabControl.Show();
         }
 
-
-        private void ExportDataGridView3(object? sender, object e)
+        private void LoadAllResults()
         {
-            var dataGridView = _tabControl.GetDataGridView3();
-            using (SaveFileDialog sfd = new SaveFileDialog())
-            {
-                string day = DateTime.Now.Day.ToString();
-                string month = DateTime.Now.Month.ToString();
-                string year = DateTime.Now.Year.ToString();
-
-                string hour = DateTime.Now.Hour.ToString();
-                string minute = DateTime.Now.Minute.ToString();
-                string second = DateTime.Now.Second.ToString();
-
-                sfd.Filter = "Excel files (*.xlsx)|*.xlsx";
-                sfd.FileName = "Data Packing " + day + "-" + month + "-" + year + "_at_" + hour + "." + minute + "." + second;
-                if (sfd.ShowDialog() == DialogResult.OK)
-                {
-                    ExportDataGridViewToExcel(dataGridView, sfd.FileName);
-                }
-            }
+            LoadAllResultDefect();
+            LoadAllResultWarranty();
         }
 
-        private void ExportDataGridView2(object? sender, object e)
+        private void SubscribeToEvents()
         {
-            var dataGridView = _tabControl.GetDataGridView2();
-            using (SaveFileDialog sfd = new SaveFileDialog())
-            {
-                string day = DateTime.Now.Day.ToString();
-                string month = DateTime.Now.Month.ToString();
-                string year = DateTime.Now.Year.ToString();
+            _tabControl.SearchFilter += (s, e) => ApplyFilter(_defectRepository.GetFilter, _tabControl.Search, _tabControl.SelectedDate, defectsBindingSource);
+            _tabControl.SearchFilter2 += (s, e) => ApplyFilter(_warrantyRepository.GetFilter, _tabControl.SearchWarranty, _tabControl.SelectedDate2, warrantyBindingSource);
 
-                string hour = DateTime.Now.Hour.ToString();
-                string minute = DateTime.Now.Minute.ToString();
-                string second = DateTime.Now.Second.ToString();
-
-                sfd.Filter = "Excel files (*.xlsx)|*.xlsx";
-                sfd.FileName = "Data Warranty Card " + day + "-" + month + "-" + year + "_at_" + hour + "." + minute + "." + second;
-                if (sfd.ShowDialog() == DialogResult.OK)
-                {
-                    ExportDataGridViewToExcel(dataGridView, sfd.FileName);
-                }
-            }
+            _tabControl.ExportDataGridView += (s, e) => ExportDataGridView(_tabControl.GetDataGridView1(), "Data Defect");
+            _tabControl.ExportDataGridView2 += (s, e) => ExportDataGridView(_tabControl.GetDataGridView2(), "Data Warranty Card");
         }
 
-        private void ExportDataGridView(object? sender, object e)
+        private void ApplyFilter<TModel>(Func<string, DateTime, IEnumerable<TModel>> getFilterMethod, string search, DateTime date, BindingSource bindingSource)
         {
-            var dataGridView = _tabControl.GetDataGridView1();
-            using (SaveFileDialog sfd = new SaveFileDialog())
+            var filterResult = getFilterMethod(search, date);
+            bindingSource.DataSource = filterResult.ToList();
+        }
+
+
+        private void ExportDataGridView(DataGridView dataGridView, string defaultFileName)
+        {
+            using (var sfd = new SaveFileDialog())
             {
-                string day = DateTime.Now.Day.ToString();
-                string month = DateTime.Now.Month.ToString();
-                string year = DateTime.Now.Year.ToString();
-
-                string hour = DateTime.Now.Hour.ToString();
-                string minute = DateTime.Now.Minute.ToString();
-                string second = DateTime.Now.Second.ToString();
-
                 sfd.Filter = "Excel files (*.xlsx)|*.xlsx";
-                sfd.FileName = "Data Defect " + day + "-" + month + "-" + year + "_at_" + hour + "." + minute + "." + second;
+                sfd.FileName = $"{defaultFileName} {DateTime.Now:dd-MM-yyyy}_at_{DateTime.Now:HH.mm.ss}";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     ExportDataGridViewToExcel(dataGridView, sfd.FileName);
@@ -124,109 +74,127 @@ namespace DownloadData.Presenter
 
         private void ExportDataGridViewToExcel(DataGridView dgv, string fileName)
         {
+            Excel.Application excelApp = null;
+            Workbook workbook = null;
 
             try
             {
-                // Create a new Excel application instance
-                Excel.Application excelApp = new Excel.Application();
-                excelApp.Visible = false; // We don't need to show the Excel window
+                _tabControl.ShowProgressBar();
+                excelApp = new Excel.Application { Visible = false };
+                workbook = excelApp.Workbooks.Add(Type.Missing);
+                var worksheet = (Excel.Worksheet)workbook.Sheets["Sheet1"];
 
-                // Create a new workbook
-                Excel.Workbook workbook = excelApp.Workbooks.Add(Type.Missing);
-                Excel.Worksheet worksheet = workbook.ActiveSheet;
-                worksheet.Name = "Defect Data";
+                ExportDataGridViewWorksheet(workbook, defectsBindingSource, _tabControl.GetDataGridView1(), "Data Defect");
+                ExportDataGridViewWorksheet(workbook, warrantyBindingSource, _tabControl.GetDataGridView2(), "Data Warranty Card");
 
-                // Add column headers to the worksheet
-                for (int i = 1; i <= dgv.Columns.Count; i++)
-                {
-                    worksheet.Cells[1, i] = dgv.Columns[i - 1].HeaderText;
-                }
-
-                // Add rows to the worksheet
-                for (int i = 0; i < dgv.Rows.Count; i++)
-                {
-                    for (int j = 0; j < dgv.Columns.Count; j++)
-                    {
-                        worksheet.Cells[i + 2, j + 1] = dgv.Rows[i].Cells[j].Value?.ToString();
-                    }
-                }
-
-                // Format the header row
-                Excel.Range headerRange = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[1, dgv.Columns.Count]];
-                headerRange.Font.Bold = true;
-                headerRange.Interior.Color = Excel.XlRgbColor.rgbLightGray;
-                headerRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
-
-                // Autofit columns
-                worksheet.Columns.AutoFit();
-
-                // Set row height for all rows to be the same
-                for (int i = 1; i <= dgv.Rows.Count + 1; i++) // +1 to include the header row
-                {
-                    Excel.Range row = worksheet.Rows[i];
-                    row.RowHeight = 20; // Set the desired row height here
-                }
-
-                // Disable text wrap for all cells
-                Excel.Range entireRange = worksheet.UsedRange;
-                entireRange.WrapText = false;
-
-                // Save the workbook
                 workbook.SaveAs(fileName);
-                workbook.Close(false, Type.Missing, Type.Missing);
+                workbook.Close();
                 excelApp.Quit();
 
-                // Release COM objects
-                Marshal.ReleaseComObject(worksheet);
-                Marshal.ReleaseComObject(workbook);
-                Marshal.ReleaseComObject(excelApp);
-
-                MessageBox.Show("Data exported successfully.", "Export", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Data successfully exported!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            catch (Exception ex)
+            //catch (Exception ex)
+            //{
+            //    //MessageBox.Show($"Error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+            finally
             {
-                MessageBox.Show($"Error exporting data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                workbook = null;
+                excelApp = null;
+                _tabControl.HideProgressBar();
+
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
             }
         }
 
+        private void ExportDataGridViewWorksheet(Workbook workbook, BindingSource bindingSource, DataGridView dataGridView, string baseName)
+        {
+            var worksheet = (Excel.Worksheet)workbook.Sheets.Add(Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+            worksheet.Name = baseName;
 
-        private void SearchFilter(object? sender, EventArgs e)
-        {
-            defectList = _defectRepository.GetFilter(_tabControl.Search, _tabControl.SelectedDate);
-            defectsBindingSource.DataSource = defectList;
-            _tabControl.SetDefectListBindingSource1(defectsBindingSource);
-        }
-        private void SearchFilter2(object? sender, EventArgs e)
-        {
-            warrantyList = _warrantyRepository.GetFilter(_tabControl.SearchWarranty, _tabControl.SelectedDate2);
-            warrantyBindingSource.DataSource = warrantyList;
-            _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
-        }
-        private void SearchFilter3(object? sender, EventArgs e)
-        {
-            packingList = _packingRepository.GetFilter(_tabControl.SelectedDate3);
-            packingBindingSource.DataSource = packingList;
-            _tabControl.SetDefectListBindingSource3(packingBindingSource);
+            WriteColumnHeaders(dataGridView, worksheet); // Menggunakan DataGridView untuk header
+            WriteDataRows(bindingSource, worksheet, dataGridView);
         }
 
-        private void LoadAllResultPacking()
+        private void FormatWorksheet(Worksheet worksheet)
         {
-            packingList = _packingRepository.GetAll();
-            packingBindingSource.DataSource = packingList;
-            _tabControl.SetDefectListBindingSource3(packingBindingSource);
+            Excel.Range usedRange = worksheet.UsedRange;
+
+            // Format the header row
+            Excel.Range headerRow = worksheet.Range[worksheet.Cells[1, 1], worksheet.Cells[1, usedRange.Columns.Count]];
+            headerRow.Font.Bold = true;
+            headerRow.Interior.Color = Excel.XlRgbColor.rgbLightGray;
+            headerRow.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+            headerRow.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            headerRow.VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
+
+            // Format the data rows
+            Excel.Range dataRange = worksheet.Range[worksheet.Cells[2, 1], worksheet.Cells[usedRange.Rows.Count, usedRange.Columns.Count]];
+            dataRange.Borders.LineStyle = Excel.XlLineStyle.xlContinuous;
+            dataRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
+            dataRange.VerticalAlignment = Excel.XlVAlign.xlVAlignCenter;
+
+            // Set all columns to a fixed width
+            double columnWidth = 15; // You can adjust this value as needed
+            usedRange.Columns.ColumnWidth = columnWidth;
+
+            // Set all rows to a fixed height
+            double rowHeight = 20; // You can adjust this value as needed
+            usedRange.Rows.RowHeight = rowHeight;
+        }
+
+        private void WriteColumnHeaders(DataGridView dgv, Worksheet worksheet)
+        {
+            for (int i = 1; i <= dgv.Columns.Count; i++)
+            {
+                worksheet.Cells[1, i] = dgv.Columns[i - 1].HeaderText;
+            }
+        }
+
+        private void WriteDataRows(BindingSource bindingSource, Worksheet worksheet, DataGridView dataGridView)
+        {
+            var dataSource = (IEnumerable<object>)bindingSource.DataSource;
+            var properties = dataSource.FirstOrDefault()?.GetType().GetProperties();
+
+            if (properties == null)
+                return;
+
+            int rowIndex = 2; // Dimulai dari baris kedua (setelah header)
+            foreach (var item in dataSource)
+            {
+                int columnIndex = 1;
+                for (int j = 0; j < dataGridView.Columns.Count; j++)
+                {
+                    var columnName = dataGridView.Columns[j].Name;
+                    if (columnName == "ID")
+                    {
+                        worksheet.Cells[rowIndex, columnIndex] = (rowIndex - 1).ToString(); // Nomor urut dimulai dari 1
+                    }
+                    else
+                    {
+                        var prop = properties.FirstOrDefault(p => p.Name == columnName);
+                        worksheet.Cells[rowIndex, columnIndex] = prop?.GetValue(item)?.ToString();
+                    }
+                    columnIndex++;
+                }
+                rowIndex++;
+
+                _tabControl.UpdateProgressBar(rowIndex - 2);
+            }
+        }
+
+        private void LoadAllResultDefect()
+        {
+            var defects = _defectRepository.GetAllResult().ToList();
+            defectsBindingSource.DataSource = defects;
         }
 
         private void LoadAllResultWarranty()
         {
-            warrantyList = _warrantyRepository.GetAll();
-            warrantyBindingSource.DataSource = warrantyList;
-            _tabControl.SetDefectListBindingSource2(warrantyBindingSource);
-        }
-        private void LoadAllResultDefect()
-        {
-            defectList = _defectRepository.GetAllResult();
-            defectsBindingSource.DataSource = defectList;
-            _tabControl.SetDefectListBindingSource1(defectsBindingSource);
+            var warranties = _warrantyRepository.GetAll().ToList();
+            warrantyBindingSource.DataSource = warranties;
         }
 
         public void ChangeTabPage(int index)

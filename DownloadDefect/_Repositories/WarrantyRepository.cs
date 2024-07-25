@@ -16,7 +16,7 @@ namespace DownloadData._Repositories
 
         public WarrantyRepository()
         {
-            _dbConnection = ConfigurationManager.ConnectionStrings["LSBUDBConnectionWarranty"].ConnectionString;
+            _dbConnection = ConfigurationManager.ConnectionStrings["LSBUDBConnection"].ConnectionString;
         }
 
         public IEnumerable<WarrantyModel> GetAll()
@@ -34,15 +34,15 @@ namespace DownloadData._Repositories
                         CONVERT(DATE, Result_Warranty_Cards.ScanningDate) AS ScanningDate,
                         Result_Warranty_Cards.ScanningTime,
                         Locations.LocationName AS Location,
-                        AspNetUsers.Name AS InspectorId
+                        AspNetUsers.Name AS OperatorId
                     FROM 
                         Result_Warranty_Cards
                     INNER JOIN 
-                        LSBU_Auth.dbo.AspNetUsers 
+                        AspNetUsers 
                     ON 
-                        Result_Warranty_Cards.InspectorId = AspNetUsers.NIK
+                        Result_Warranty_Cards.OperatorId = AspNetUsers.NIK
                     INNER JOIN 
-                        LSBU_Common.dbo.Locations 
+                        Locations 
                     ON 
                         Result_Warranty_Cards.Location = Locations.Id
                     WHERE 
@@ -72,7 +72,7 @@ namespace DownloadData._Repositories
                             Date = Convert.ToDateTime(reader["ScanningDate"]).ToString("yyyy-MM-dd"),
                             ScanTime = reader["ScanningTime"].ToString(),
                             Location = reader["Location"].ToString(),
-                            Inspector = reader["InspectorId"].ToString()
+                            Inspector = reader["OperatorId"].ToString()
                         });
                     }
                 }
@@ -96,15 +96,15 @@ namespace DownloadData._Repositories
                         Result_Warranty_Cards.ScanningDate, 
                         Result_Warranty_Cards.ScanningTime, 
                         Locations.LocationName AS Location, 
-                        AspNetUsers.Name AS InspectorId 
+                        AspNetUsers.Name AS OperatorId 
                     FROM 
                         Result_Warranty_Cards 
                     INNER JOIN 
-                        LSBU_Auth.dbo.AspNetUsers 
+                        AspNetUsers 
                     ON 
-                        Result_Warranty_Cards.InspectorId = AspNetUsers.NIK 
+                        Result_Warranty_Cards.OperatorId = AspNetUsers.NIK 
                     INNER JOIN 
-                        LSBU_Common.dbo.Locations 
+                        Locations 
                     ON 
                         Result_Warranty_Cards.Location = Locations.Id 
                     WHERE 
@@ -133,7 +133,7 @@ namespace DownloadData._Repositories
                             Date = Convert.ToDateTime(reader["ScanningDate"]).ToString("yyyy-MM-dd"),
                             ScanTime = reader["ScanningTime"].ToString(),
                             Location = reader["Location"].ToString(),
-                            Inspector = reader["InspectorId"].ToString()
+                            Inspector = reader["OperatorId"].ToString()
                         };
                         results.Add(result);
                     }

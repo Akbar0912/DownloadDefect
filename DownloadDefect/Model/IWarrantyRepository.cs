@@ -9,6 +9,6 @@ namespace DownloadData.Model
     public interface IWarrantyRepository
     {
         IEnumerable<WarrantyModel> GetAll();
-        IEnumerable<WarrantyModel> GetFilter(string serialNumber, DateTime selectDate);
+        IEnumerable<WarrantyModel> GetFilter(string search, DateTime date);
     }
 }

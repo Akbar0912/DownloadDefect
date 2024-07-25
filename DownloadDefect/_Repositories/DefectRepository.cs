@@ -15,7 +15,7 @@ namespace DownloadData._Repositories
 
         public DefectRepository()
         {
-            _dbConnection = ConfigurationManager.ConnectionStrings["LSBUDBConnectionQc"].ConnectionString;
+            _dbConnection = ConfigurationManager.ConnectionStrings["LSBUDBConnection"].ConnectionString;
         }
 
         public IEnumerable<DefectModel> GetAllResult()
@@ -40,9 +40,9 @@ namespace DownloadData._Repositories
                     "FROM " +
                     "    Defect_Results DR " +
                     "INNER JOIN " +
-                    "    LSBU_Auth.dbo.AspNetUsers U ON DR.InspectorId = U.NIK " +
+                    "    AspNetUsers U ON DR.InspectorId = U.NIK " +
                     "INNER JOIN " +
-                    "   LSBU_Common.dbo.Locations L ON DR.LocationId = L.Id " +
+                    "   Locations L ON DR.LocationId = L.Id " +
                     "INNER JOIN " +
                     "    Defect_Names DN ON DR.DefectId = DN.Id " +
                     "WHERE " +
@@ -97,9 +97,9 @@ namespace DownloadData._Repositories
                     "FROM " +
                     "    Defect_Results DR " +
                     "INNER JOIN " +
-                    "    LSBU_Auth.dbo.AspNetUsers U ON DR.InspectorId = U.NIK " +
+                    "    AspNetUsers U ON DR.InspectorId = U.NIK " +
                     "INNER JOIN " +
-                    "   LSBU_Common.dbo.Locations L ON DR.LocationId = L.Id " +
+                    "   Locations L ON DR.LocationId = L.Id " +
                     "INNER JOIN " +
                     "    Defect_Names DN ON DR.DefectId = DN.Id " +
                     "WHERE " +
